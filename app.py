@@ -1,5 +1,6 @@
 import os
 
+from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_bcrypt import Bcrypt
@@ -19,6 +20,15 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message = "Iniciá sesión para continuar."
+
+oauth = OAuth(app)
+google = oauth.register(
+    name="google",
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
 
 with app.app_context():
     db.create_all()
@@ -71,6 +81,33 @@ def login():
         return redirect(url_for("login"))
 
     return render_template("login.html")
+
+
+@app.route("/login/google")
+def login_google():
+    redirect_uri = url_for("google_callback", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route("/login/google/callback")
+def google_callback():
+    try:
+        token = google.authorize_access_token()
+        info = token["userinfo"]
+        email = info["email"].lower()
+        nombre = info.get("name", email)
+    except Exception:
+        flash("No se pudo ingresar con Google. Probá de nuevo.", "danger")
+        return redirect(url_for("login"))
+
+    usuario = Usuario.query.filter_by(email=email).first()
+    if not usuario:
+        usuario = Usuario(nombre=nombre, email=email, password=None)
+        db.session.add(usuario)
+        db.session.commit()
+
+    login_user(usuario)
+    return redirect(url_for("inicio"))
 
 
 @app.route("/logout")
