@@ -10,6 +10,10 @@ from models import Categoria, Componente, Proveedor, Usuario, db
 
 load_dotenv()
 
+from proveedores import bp as proveedores_bp
+
+from servicios import bp as servicios_bp
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///tienda.db")
@@ -20,6 +24,10 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message = "Iniciá sesión para continuar."
+
+app.register_blueprint(proveedores_bp)
+
+app.register_blueprint(servicios_bp)
 
 oauth = OAuth(app)
 google = oauth.register(
