@@ -185,5 +185,56 @@ def componente_nuevo():
     )
 
 
+@app.route("/componentes/<int:componente_id>/editar", methods=["GET", "POST"])
+@login_required
+def componente_editar(componente_id):
+    componente = db.session.get(Componente, componente_id)
+    if componente is None:
+        flash("El componente no existe.", "danger")
+        return redirect(url_for("componentes"))
+
+    if request.method == "POST":
+        try:
+            nombre = request.form["nombre"].strip()
+            precio = float(request.form["precio"])
+            stock = int(request.form["stock"])
+            stock_minimo = int(request.form["stock_minimo"])
+            categoria_id = int(request.form["categoria_id"])
+        except (KeyError, ValueError):
+            flash("Revisá los datos ingresados.", "danger")
+            return redirect(url_for("componente_editar", componente_id=componente_id))
+
+        if not nombre or precio < 0 or stock < 0 or stock_minimo < 0:
+            flash("Los datos no son válidos.", "danger")
+            return redirect(url_for("componente_editar", componente_id=componente_id))
+
+        componente.nombre = nombre
+        componente.precio = precio
+        componente.stock = stock
+        componente.stock_minimo = stock_minimo
+        componente.categoria_id = categoria_id
+        componente.activo = "activo" in request.form
+
+        ids = [int(i) for i in request.form.getlist("proveedores")]
+        componente.proveedores = Proveedor.query.filter(Proveedor.id.in_(ids)).all() if ids else []
+
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            flash("No se pudieron guardar los cambios.", "danger")
+            return redirect(url_for("componente_editar", componente_id=componente_id))
+
+        flash("Cambios guardados.", "success")
+        return redirect(url_for("componentes"))
+
+    return render_template(
+        "componente_editar.html",
+        componente=componente,
+        categorias=Categoria.query.order_by(Categoria.nombre).all(),
+        proveedores=Proveedor.query.order_by(Proveedor.nombre).all(),
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Editar componente{% endblock %}
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-3">Editar componente</h2>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensaje in mensajes %}
+        <div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
+      {% endfor %}
+    {% endwith %}
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Nombre</label>
+        <input type="text" name="nombre" value="{{ componente.nombre }}" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Precio</label>
+        <input type="number" name="precio" value="{{ componente.precio }}" step="0.01" min="0" class="form-control" required>
+      </div>
+      <div class="row">
+        <div class="col mb-3">
+          <label class="form-label">Stock</label>
+          <input type="number" name="stock" value="{{ componente.stock }}" min="0" class="form-control" required>
+        </div>
+        <div class="col mb-3">
+          <label class="form-label">Stock mínimo</label>
+          <input type="number" name="stock_minimo" value="{{ componente.stock_minimo }}" min="0" class="form-control" required>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Categoría</label>
+        <select name="categoria_id" class="form-select" required>
+          {% for c in categorias %}
+            <option value="{{ c.id }}" {% if c.id == componente.categoria_id %}selected{% endif %}>{{ c.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if proveedores %}
+      <div class="mb-3">
+        <label class="form-label">Proveedores</label>
+        <select name="proveedores" class="form-select" multiple>
+          {% for p in proveedores %}
+            <option value="{{ p.id }}" {% if p in componente.proveedores %}selected{% endif %}>{{ p.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="activo" id="activo" {% if componente.activo %}checked{% endif %}>
+        <label class="form-check-label" for="activo">Activo (si lo destildás, deja de aparecer en el listado)</label>
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      <a href="{{ url_for('componentes') }}" class="btn btn-link">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
