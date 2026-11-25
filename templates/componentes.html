@@ -10,6 +10,23 @@
     <div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
   {% endfor %}
 {% endwith %}
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-5">
+    <input type="text" name="q" value="{{ busqueda }}" class="form-control" placeholder="Buscar por nombre">
+  </div>
+  <div class="col-md-4">
+    <select name="categoria" class="form-select">
+      <option value="">Todas las categorías</option>
+      {% for c in categorias %}
+        <option value="{{ c.id }}" {% if c.id == categoria_id %}selected{% endif %}>{{ c.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <button type="submit" class="btn btn-secondary">Filtrar</button>
+    <a href="{{ url_for('componentes') }}" class="btn btn-link">Limpiar</a>
+  </div>
+</form>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -39,7 +56,7 @@
     </tr>
     {% else %}
     <tr>
-      <td colspan="6" class="text-center text-muted">Todavía no hay componentes cargados.</td>
+      <td colspan="6" class="text-center text-muted">{% if busqueda or categoria_id %}No se encontraron componentes con ese filtro.{% else %}Todavía no hay componentes cargados.{% endif %}</td>
     </tr>
     {% endfor %}
   </tbody>

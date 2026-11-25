@@ -142,8 +142,23 @@ def logout():
 @app.route("/componentes")
 @login_required
 def componentes():
-    lista = Componente.query.filter_by(activo=True).order_by(Componente.nombre).all()
-    return render_template("componentes.html", componentes=lista)
+    busqueda = request.args.get("q", "").strip()
+    categoria_id = request.args.get("categoria", type=int)
+
+    consulta = Componente.query.filter_by(activo=True)
+    if busqueda:
+        consulta = consulta.filter(Componente.nombre.ilike(f"%{busqueda}%"))
+    if categoria_id:
+        consulta = consulta.filter(Componente.categoria_id == categoria_id)
+
+    lista = consulta.order_by(Componente.nombre).all()
+    return render_template(
+        "componentes.html",
+        componentes=lista,
+        categorias=Categoria.query.order_by(Categoria.nombre).all(),
+        busqueda=busqueda,
+        categoria_id=categoria_id,
+    )
 
 
 @app.route("/componentes/nuevo", methods=["GET", "POST"])
