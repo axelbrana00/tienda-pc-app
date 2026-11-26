@@ -1,5 +1,97 @@
 {% extends "base.html" %}
 {% block contenido %}
-<h1>Gestión de stock de componentes de PC</h1>
-<p>Bienvenido al sistema.</p>
+<div class="hero mb-4">
+  <h1 class="display-5 fw-bold">Tienda PC</h1>
+  <p class="lead mb-3">Gestión de stock de componentes de PC: sabé qué tenés, qué se está por acabar y cuánto vale todo.</p>
+  {% if current_user.is_authenticated %}
+    <a class="btn btn-light me-2" href="{{ url_for('componentes') }}">Ver componentes</a>
+    <a class="btn btn-outline-light" href="{{ url_for('reporte') }}">Ver reporte</a>
+  {% else %}
+    <a class="btn btn-light me-2" href="{{ url_for('login') }}">Ingresar</a>
+    <a class="btn btn-outline-light" href="{{ url_for('registro') }}">Crear cuenta</a>
+  {% endif %}
+</div>
+
+{% if resumen %}
+<h2 class="h4 mb-3">Resumen del stock</h2>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100"><div class="card-body">
+      <div class="numero">{{ resumen.componentes }}</div>
+      <div class="text-muted">Componentes activos</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100"><div class="card-body">
+      <div class="numero">{{ resumen.unidades }}</div>
+      <div class="text-muted">Unidades en stock</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100"><div class="card-body">
+      <div class="numero">${{ "{:,.0f}".format(resumen.valor).replace(",", ".") }}</div>
+      <div class="text-muted">Valor del stock</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center h-100 {% if resumen.stock_bajo %}border-danger{% endif %}"><div class="card-body">
+      <div class="numero {% if resumen.stock_bajo %}text-danger{% endif %}">{{ resumen.stock_bajo|length }}</div>
+      <div class="text-muted">Con stock bajo</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card h-100"><div class="card-body">
+      <h3 class="h5">Stock bajo</h3>
+      {% if resumen.stock_bajo %}
+        <ul class="mb-0">
+          {% for c in resumen.stock_bajo %}
+          <li>{{ c.nombre }} <span class="text-muted">({{ c.stock }} de mínimo {{ c.stock_minimo }})</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-0">Todo en orden, no hay componentes con stock bajo.</p>
+      {% endif %}
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100"><div class="card-body">
+      <h3 class="h5">Últimos movimientos</h3>
+      {% if resumen.ultimos %}
+        <ul class="mb-0">
+          {% for m in resumen.ultimos %}
+          <li>
+            <span class="badge {% if m.tipo == 'entrada' %}bg-success{% else %}bg-danger{% endif %}">{{ m.tipo }}</span>
+            {{ m.cantidad }} × {{ m.componente.nombre }}
+            <span class="text-muted">· {{ m.fecha|hora_ar }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-0">Todavía no hay movimientos.</p>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% else %}
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <div class="icono"><i class="bi bi-arrow-repeat"></i></div>
+    <h3 class="h5">Stock siempre al día</h3>
+    <p class="mb-0">Cada entrada y salida actualiza el stock sola, y no deja vender más de lo que hay.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <div class="icono"><i class="bi bi-bell"></i></div>
+    <h3 class="h5">Avisos de stock bajo</h3>
+    <p class="mb-0">Te avisa cuando un componente queda por debajo del mínimo que definas.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <div class="icono"><i class="bi bi-graph-up-arrow"></i></div>
+    <h3 class="h5">Reporte y dólar del día</h3>
+    <p class="mb-0">Valor total del stock por categoría y cotización del dólar traída de una API.</p>
+  </div></div></div>
+</div>
+{% endif %}
 {% endblock %}

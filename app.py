@@ -4,10 +4,10 @@ from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from models import Categoria, Componente, Proveedor, Usuario, db
+from models import Categoria, Componente, Movimiento, Proveedor, Usuario, db
 
 load_dotenv()
 
@@ -73,7 +73,18 @@ def cargar_usuario(user_id):
 
 @app.route("/")
 def inicio():
-    return render_template("inicio.html")
+    resumen = None
+    if current_user.is_authenticated:
+        activos = Componente.query.filter_by(activo=True).all()
+        resumen = dict(
+            componentes=len(activos),
+            unidades=sum(c.stock for c in activos),
+            valor=sum(c.stock * c.precio for c in activos),
+            stock_bajo=[c for c in activos if c.stock <= c.stock_minimo],
+            proveedores=Proveedor.query.count(),
+            ultimos=Movimiento.query.order_by(Movimiento.fecha.desc()).limit(5).all(),
+        )
+    return render_template("inicio.html", resumen=resumen)
 
 
 @app.route("/registro", methods=["GET", "POST"])
@@ -84,7 +95,7 @@ def registro():
         password = request.form["password"]
 
         if Usuario.query.filter_by(email=email).first():
-            flash("Ese email ya está registrado.", "danger")
+            flash("No se pudo crear la cuenta con ese email. Si ya tenés una, iniciá sesión.", "danger")
             return redirect(url_for("registro"))
 
         password_hash = bcrypt.generate_password_hash(password).decode("utf-8")

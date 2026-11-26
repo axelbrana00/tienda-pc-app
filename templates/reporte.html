@@ -2,8 +2,8 @@
 {% block titulo %}Reporte general{% endblock %}
 {% block contenido %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Reporte general</h2>
-  <a href="{{ url_for('componentes') }}" class="btn btn-outline-secondary">Volver a componentes</a>
+  <h2><i class="bi bi-bar-chart-line me-2"></i>Reporte general</h2>
+  <a href="{{ url_for('componentes') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver a componentes</a>
 </div>
 
 <div class="row g-3 mb-4">
@@ -44,6 +44,13 @@
   </div>
 </div>
 
+<div class="card mb-4">
+  <div class="card-body">
+    <h4 class="mb-3">Valor del stock por categoría</h4>
+    <div style="max-height: 320px;"><canvas id="grafico"></canvas></div>
+  </div>
+</div>
+
 <h4>Por categoría</h4>
 <table class="table table-striped mb-4">
   <thead>
@@ -78,4 +85,29 @@
     {% endfor %}
   </tbody>
 </table>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  // Datos que manda Flask (por_categoria) convertidos a JSON
+  const categorias = {{ por_categoria | tojson }};
+  new Chart(document.getElementById("grafico"), {
+    type: "bar",
+    data: {
+      labels: categorias.map(c => c.nombre),
+      datasets: [{
+        label: "Valor del stock ($)",
+        data: categorias.map(c => c.valor),
+        backgroundColor: "#5b5bd6",
+        borderRadius: 8
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+</script>
 {% endblock %}
