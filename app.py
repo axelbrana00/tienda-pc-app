@@ -259,5 +259,32 @@ def componente_editar(componente_id):
     )
 
 
+@app.route("/reporte")
+@login_required
+def reporte():
+    activos = Componente.query.filter_by(activo=True).all()
+
+    por_categoria = []
+    for categoria in Categoria.query.order_by(Categoria.nombre).all():
+        de_la_categoria = [c for c in activos if c.categoria_id == categoria.id]
+        por_categoria.append(
+            {
+                "nombre": categoria.nombre,
+                "componentes": len(de_la_categoria),
+                "unidades": sum(c.stock for c in de_la_categoria),
+                "valor": sum(c.stock * c.precio for c in de_la_categoria),
+            }
+        )
+
+    return render_template(
+        "reporte.html",
+        total_componentes=len(activos),
+        total_unidades=sum(c.stock for c in activos),
+        valor_total=sum(c.stock * c.precio for c in activos),
+        stock_bajo=[c for c in activos if c.stock <= c.stock_minimo],
+        por_categoria=por_categoria,
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=True)

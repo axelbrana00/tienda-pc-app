@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block titulo %}Reporte general{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Reporte general</h2>
+  <a href="{{ url_for('componentes') }}" class="btn btn-outline-secondary">Volver a componentes</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="text-muted">Componentes activos</div>
+        <div class="fs-3 fw-bold">{{ total_componentes }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="text-muted">Unidades en stock</div>
+        <div class="fs-3 fw-bold">{{ total_unidades }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="text-muted">Valor del inventario</div>
+        <div class="fs-3 fw-bold">$ {{ "%.2f"|format(valor_total) }}</div>
+        {% if dolar and dolar.venta %}
+          <div class="text-muted small">≈ USD {{ "%.2f"|format(valor_total / dolar.venta) }} (dólar oficial)</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="text-muted">Con stock bajo</div>
+        <div class="fs-3 fw-bold {% if stock_bajo %}text-danger{% endif %}">{{ stock_bajo | length }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4>Por categoría</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Categoría</th><th>Componentes</th><th>Unidades</th><th>Valor</th></tr>
+  </thead>
+  <tbody>
+    {% for f in por_categoria %}
+    <tr>
+      <td>{{ f.nombre }}</td>
+      <td>{{ f.componentes }}</td>
+      <td>{{ f.unidades }}</td>
+      <td>$ {{ "%.2f"|format(f.valor) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h4>Componentes con stock bajo</h4>
+<table class="table table-striped">
+  <thead>
+    <tr><th>Nombre</th><th>Stock</th><th>Mínimo</th></tr>
+  </thead>
+  <tbody>
+    {% for c in stock_bajo %}
+    <tr>
+      <td>{{ c.nombre }}</td>
+      <td><span class="badge text-bg-danger">{{ c.stock }}</span></td>
+      <td>{{ c.stock_minimo }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3" class="text-center text-muted">Ningún componente está por debajo de su stock mínimo.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
