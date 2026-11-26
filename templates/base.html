@@ -12,13 +12,13 @@
       <a class="navbar-brand" href="/">Tienda PC</a>
       <ul class="navbar-nav ms-auto flex-row gap-3">
         {% if dolar %}
-          <li class="nav-item"><span class="navbar-text">Dólar oficial: ${{ dolar.venta }}</span></li>
+          <li class="nav-item"><span class="nav-link">Dólar oficial: ${{ dolar.venta }}</span></li>
         {% endif %}
         {% if current_user.is_authenticated %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('componentes') }}">Componentes</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('proveedores.listado') }}">Proveedores</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('movimientos.listado') }}">Movimientos</a></li>
-          <li class="nav-item"><span class="navbar-text">{{ current_user.nombre }}</span></li>
+          <li class="nav-item"><span class="nav-link">{{ current_user.nombre }}</span></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Salir</a></li>
         {% else %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Ingresar</a></li>

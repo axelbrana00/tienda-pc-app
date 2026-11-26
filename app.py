@@ -12,6 +12,8 @@ load_dotenv()
 
 from proveedores import bp as proveedores_bp
 
+from errores import bp as errores_bp
+
 from servicios import bp as servicios_bp
 
 from movimientos import bp as movimientos_bp
@@ -28,6 +30,8 @@ login_manager.login_view = "login"
 login_manager.login_message = "Iniciá sesión para continuar."
 
 app.register_blueprint(proveedores_bp)
+
+app.register_blueprint(errores_bp)
 
 app.register_blueprint(servicios_bp)
 
