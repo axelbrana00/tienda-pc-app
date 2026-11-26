@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_required, login_user, logout_user
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from models import Categoria, Componente, Proveedor, Usuario, db
 
@@ -19,6 +20,7 @@ from servicios import bp as servicios_bp
 from movimientos import bp as movimientos_bp
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///tienda.db")
 
