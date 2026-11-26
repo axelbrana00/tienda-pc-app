@@ -14,6 +14,8 @@ from proveedores import bp as proveedores_bp
 
 from servicios import bp as servicios_bp
 
+from movimientos import bp as movimientos_bp
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///tienda.db")
@@ -28,6 +30,8 @@ login_manager.login_message = "Iniciá sesión para continuar."
 app.register_blueprint(proveedores_bp)
 
 app.register_blueprint(servicios_bp)
+
+app.register_blueprint(movimientos_bp)
 
 oauth = OAuth(app)
 google = oauth.register(

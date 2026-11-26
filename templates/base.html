@@ -17,6 +17,7 @@
         {% if current_user.is_authenticated %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('componentes') }}">Componentes</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('proveedores.listado') }}">Proveedores</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('movimientos.listado') }}">Movimientos</a></li>
           <li class="nav-item"><span class="navbar-text">{{ current_user.nombre }}</span></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Salir</a></li>
         {% else %}
