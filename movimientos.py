@@ -61,4 +61,4 @@ def nuevo():
         return redirect(url_for("movimientos.listado"))
 
     componentes = Componente.query.filter_by(activo=True).order_by(Componente.nombre).all()
-    return render_template("movimiento_nuevo.html", componentes=componentes)
+    return render_template("movimientos_nuevo.html", componentes=componentes)
